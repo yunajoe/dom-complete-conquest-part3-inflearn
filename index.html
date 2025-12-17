@@ -12,6 +12,7 @@
         --white: #ffffff;
         --white-10: #e6e8ef;
         --white-20: #f8fafc;
+        --white-30: #e6e9ef;
         --black: #000;
         --black-10: #0b1220;
         --black-20: #1d2635;
@@ -20,8 +21,14 @@
         --gray-10: #cfd3dc;
         --gray-20: #95a0b3;
         --gray-30: #4d5a6e;
+        --gray-40: #a7b1c2;
+
+        --pro-blue: #60a5fa;
+        --pro-light-blue: #2563eb;
         --light-blue: #0a8fff;
         --blue: #3b82f6;
+        --blue-strong: #1d4ed8;
+
         --blue-10: #9fb0c7;
         --blue-20: #a5b4c8;
         --blue-30: #8a94a6;
@@ -29,17 +36,34 @@
         --blue-50: #b6cfff;
         --blue-60: #8ea0b5;
         --blue-70: #7b8aa1;
+        --green-10: #22c55e;
+
         --red-10: #f87171;
+        --font-0: 0px;
+        --font-12: 12px;
+        --font-14: 14px;
+        --font-16: 16px;
+        --font-18: 18px;
+        --font-28: 28px;
+        --font-30: 30px;
+        --font-32: 32px;
+
+        --font-wg--700: 700;
+
+        --ribbon: linear-gradient(135deg, var(--green-10), #7dd3fc);
+      }
+      * {
+        box-sizing: border-box;
       }
       html {
-        font-size: 14px;
+        font-size: var(--font-14);
       }
       body {
         margin: 0;
         font-family: system-ui, -apple-system, Segoe UI, Roboto, Noto Sans,
           sans-serif;
         background: var(--black-10);
-        color: var(--gray-10);
+        color: var(--white-10);
       }
       html[data-theme="light"] body {
         background: var(--white);
@@ -61,10 +85,22 @@
         position: sticky;
         top: 0;
         background: var(--black-10);
-        color: var(--gray-20);
-        padding: 10px 14px;
+        color: var(--white-10);
+        padding: 16px 20px;
         border-bottom: 1px solid var(--black-20);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
       }
+
+      .header .title {
+        font-size: var(--font-16);
+      }
+
+      html[date-theme="light"] .title {
+        color: var(--gray-10);
+      }
+
       html[data-theme="light"] .header {
         background: var(--white);
         color: var(--gray-30);
@@ -88,49 +124,77 @@
       .pricing {
         max-width: 1100px;
         margin: 40px auto 60px;
+        padding: 0 20px;
       }
       .row {
-        font-size: 0;
+        display: flex;
+        column-gap: 20px;
+        width: 100%;
+
+        @media screen and (max-width: 800px) {
+          flex-direction: column;
+          row-gap: 20px;
+        }
       }
       .plan {
-        display: inline-block;
-        vertical-align: top;
-        width: 32%;
-        margin: 0 1%;
-        font-size: 1rem;
+        /* display: inline-block; */
+        /* vertical-align: top; */
+        width: 100%;
+        padding: 24px;
+        font-size: var(--font--14);
         background: var(--black-40);
         border: 1px solid var(--black-30);
         border-radius: 12px;
         overflow: hidden;
         position: relative;
       }
+
       html[data-theme="light"] .plan {
         background: var(--white-20);
         border-color: var(--white-10);
       }
 
       /* 카드 타이포 – 혼용, 저대비 */
-      .plan h3 {
+      .plan__ribbon {
+        position: absolute;
+        top: 10px;
+        right: -40px;
+        width: 140px;
+        text-align: center;
+        background: var(--ribbon);
+        transform: rotate(30deg);
+        padding: 8px;
+      }
+      .plan__title {
         margin: 16px 16px 6px 16px;
-        font-size: 18px;
+        font-size: var(--font-18);
         color: var(--blue-10);
       }
-      .plan .price {
+      .plan__price {
         margin: 0 16px 8px 16px;
-        font-size: 28px;
-        color: var(--blue-20);
+        color: var(--white-30);
+        font-size: var(--font-32);
+        font-weight: var(--font-wg--700);
       }
-      .plan .desc {
+      .plan__desc {
         margin: 0 16px 12px 16px;
-        color: var(--blue-30);
+        color: var(--gray-40);
+        font-size: var(--font-16);
         line-height: 1.3;
       }
-      .plan .features {
+      .plan__features {
         margin: 12px 16px 16px 16px;
         color: var(--blue-40);
+        padding: 0;
       }
-      .plan .features li {
+      .plan__features__item {
         margin: 6px 0;
+        list-style-type: none;
+      }
+      .plan__features__item::before {
+        content: "✔";
+        color: var(--green-10);
+        margin-right: 8px;
       }
 
       /* CTA – 전역 .btn 규칙에 종속 → 파랑으로 강제 */
@@ -144,39 +208,52 @@
       /* Pro 카드만 inline style과 id로 어지럽게 덮어쓰기 */
       #pro {
         border-color: var(--blue);
+        outline: 2px solid
+          color-mix(in oklab, var(--blue-strong), var(--black-10, 20%));
+
+        outline-offset: 2px;
       }
-      #pro h3 {
-        color: var(--blue-50) !important;
+      #pro .plan__title {
+        color: var(--pro-blue);
       } /* 강제 */
       #pro .price {
-        font-size: 30px;
+        font-size: var(--font-30);
       }
+
       /* inline style이 아래 본문에 들어감 */
 
       /* 할인 배지 – 위치 기준 잘못(문제 유도) */
       .badge {
         position: absolute;
-        top: -10px;
-        right: -6px;
+        left: 10px;
+        top: 10px;
         background: var(--red-10);
         color: var(--white);
         padding: 4px 10px;
         border-radius: 999px;
-        font-size: 12px;
+        font-size: var(--font-12);
       }
 
       /* 라이트에서 대비 낮음 유지하려고 일부러 */
-      html[data-theme="light"] .plan h3 {
-        color: var(--blue-70);
+
+      html[data-theme="light"] .plan__price {
+        color: var(--black-10);
       }
-      html[data-theme="light"] .plan .desc {
-        color: var(--blue-60);
+
+      html[data-theme="light"] .plan__title {
+        color: var(--black-10);
+      }
+      html[data-theme="light"] #pro .plan__title {
+        color: var(--pro-light-blue);
+      }
+      html[data-theme="light"] .plan__desc {
+        color: var(--gray-40);
       }
     </style>
   </head>
   <body>
     <div class="header">
-      <strong>봄맞이 프로모션</strong>
+      <strong class="title">봄맞이 프로모션</strong>
       <span class="right">
         <button id="theme" class="btn-ghost">🌓 테마</button>
       </span>
@@ -186,33 +263,31 @@
       <div class="row">
         <section class="plan" id="basic">
           <span class="badge">-20%</span>
-          <h3>Basic</h3>
-          <p class="price">₩9,900</p>
-          <p class="desc">개인/취미용. 소규모 프로젝트에 적합.</p>
-          <ul class="features">
-            <li>월 1GB 트래픽</li>
-            <li>커뮤니티 지원</li>
+          <h3 class="plan__title">Basic</h3>
+          <p class="plan__price">₩9,900</p>
+          <p class="plan__desc">
+            개인/취미용 – 소규모 프로젝트를 가볍게 시작하세요.
+          </p>
+          <ul class="plan__features">
+            <li class="plan__features__item">월 1GB 트래픽</li>
+            <li class="plan__features__item">커뮤니티 지원</li>
           </ul>
           <div class="cta">
             <button class="btn">지금 시작</button>
           </div>
         </section>
 
-        <section
-          class="plan"
-          id="pro"
-          style="background: #0c1528; padding-bottom: 26px"
-        >
-          <span class="badge" style="right: -12px; top: -14px">인기</span>
-          <h3>Pro</h3>
-          <p class="price">₩19,900</p>
-          <p class="desc" style="line-height: 1.1">
-            팀 협업, 대시보드 제작에 추천.
+        <section class="plan" id="pro" style="padding-bottom: 26px">
+          <span class="plan__ribbon">인기</span>
+          <h3 class="plan__title">Pro</h3>
+          <p class="plan__price">₩19,900</p>
+          <p class="plan__desc" style="line-height: 1.1">
+            팀 협업/대시보드 제작 – 필요 기능을 안정적으로.
           </p>
-          <ul class="features">
-            <li>월 10GB 트래픽</li>
-            <li>이메일 지원</li>
-            <li>애널리틱스</li>
+          <ul class="plan__features">
+            <li class="plan__features__item">월 10GB 트래픽</li>
+            <li class="plan__features__item">이메일 지원</li>
+            <li class="plan__features__item">애널리틱스</li>
           </ul>
           <div class="cta">
             <button class="btn" style="border-radius: 6px">업그레이드</button>
@@ -221,13 +296,15 @@
 
         <section class="plan" id="business">
           <span class="badge">-30%</span>
-          <h3>Business</h3>
-          <p class="price">₩49,900</p>
-          <p class="desc">기업/고트래픽 서비스용. SLA 포함.</p>
-          <ul class="features">
-            <li>무제한 트래픽</li>
-            <li>우선 지원</li>
-            <li>전담 CSM</li>
+          <h3 class="plan__title">Business</h3>
+          <p class="plan__price">₩49,900</p>
+          <p class="plan__desc">
+            기업/고트래픽 – SLA/전담 지원 포함, 확장성 극대화.
+          </p>
+          <ul class="plan__features">
+            <li class="plan__features__item">무제한 트래픽</li>
+            <li class="plan__features__item">우선 지원</li>
+            <li class="plan__features__item">전담 CSM</li>
           </ul>
           <div class="cta">
             <button class="btn">상담하기</button>
