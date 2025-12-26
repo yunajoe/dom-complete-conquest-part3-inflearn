@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>CLS 미션 - Base (Worse)</title>
+    <style>
+      body {
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        margin: 0;
+        padding: 24px;
+        line-height: 1.5;
+      }
+      .hud {
+        position: fixed;
+        top: 12px;
+        right: 12px;
+        background: #111;
+        color: #fff;
+        padding: 10px 12px;
+        border-radius: 8px;
+        font-size: 14px;
+        z-index: 9999;
+      }
+
+      .card {
+        margin-top: 16px;
+        padding: 12px;
+        background: #f3f3f3;
+        border-radius: 8px;
+      }
+
+      /* 광고 부분 */
+      .ad-wrap {
+        width: 100%;
+        height: 120px;
+        background: #ffe066;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px dashed #222;
+        font-weight: 700;
+      }
+
+      .ad-content {
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .ad-content.ready {
+        opacity: 1;
+      }
+
+      /* hero 이미지 부분 */
+      .hero-wrap {
+        width: 100%;
+      }
+
+      .hero-skeleton {
+        width: 100%;
+        background: #e9e9e9;
+        aspect-ratio: 4 / 3;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #666;
+        font-size: 14px;
+      }
+
+      #hero {
+        width: 100%;
+        height: auto;
+        display: none;
+        border-radius: 8px;
+      }
+
+      .banner {
+        position: relative;
+        margin-top: 24px;
+        width: 120px;
+        height: 40px;
+        background: #ff6b6b;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 400ms ease;
+        will-change: transform;
+      }
+      .banner.move {
+        transform: translate(260px);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="hud">CLS: <span id="cls">0.000</span></div>
+
+    <!--  광고 컨테이너 (초기부터 자리 확보) -->
+    <div class="ad-wrap">
+      <div class="ad-content" id="ad-content">로딩 중...</div>
+    </div>
+
+    <h1>레이아웃 셰프트 Base 페이지</h1>
+    <p>로딩 중 요소가 여러 번 밀리도록 설계된 예시입니다.</p>
+
+    <div class="hero-wrap">
+      <div class="hero-skeleton" id="hero-skeleton">이미지 로딩 중</div>
+      <img
+        id="hero"
+        alt="큰 이미지"
+        width="1200"
+        height="900"
+        referrerpolicy="no-referrer"
+      />
+    </div>
+    <div class="card" id="card1">
+      이 문장은 큰 이미지가 뒤늦게 들어오면 아래로 밀릴 수 있습니다.
+    </div>
+
+    <div class="banner" id="banner">BUY</div>
+
+    <script>
+      const adContent = document.getElementById("ad-content"); // 광고 컨텐츠
+      const skeleton = document.getElementById("hero-skeleton"); // skeleton
+      const hero = document.getElementById("hero"); // hero image
+      const banner = document.getElementById("banner");
+
+      // 1차 기본 이미지 URL (Wikimedia)
+      const IMG_PRIMARY =
+        "https://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg";
+      // 2차 대체 URL (Picsum: 4:3 비율)
+      const IMG_FALLBACK = "https://picsum.photos/1200/900";
+
+      // 이미지 로드 성공시 skeleton 교체
+      const showImage = () => {
+        hero.style.display = "block"; // 이미지는 보이게
+        skeleton.style.display = "none"; // skeleton은  안 보이게
+      };
+
+      // 이미지 로드 실패시 대체 소스 코드
+      const handleImageError = () => {
+        if (hero.dataset.triedFallback === "1") {
+          skeleton.textContent =
+            "이미지를 불러오지 못했습니다. 네트워크 상태를 확인하세요";
+          return;
+        }
+        hero.dataset.triedFallback = "1";
+        hero.src = IMG_FALLBACK;
+      };
+
+      const failSafeTimer = setTimeout(() => {
+        if (hero.style.display === "none") {
+          skeleton.textContent =
+            "네트워크가 느립니다. 잠시 후 다시 시도합니다…";
+        }
+      }, 5000);
+
+      // 이미지 로드가 5초내로 없으면 다른 안내로 전환
+      // CLS HUD
+      (function measureCLS() {
+        let clsValue = 0;
+        const clsEl = document.getElementById("cls");
+        if ("PerformanceObserver" in window) {
+          const po = new PerformanceObserver((list) => {
+            for (const entry of list.getEntries()) {
+              if (!entry.hadRecentInput) {
+                clsValue += entry.value;
+                clsEl.textContent = clsValue.toFixed(3);
+              }
+            }
+          });
+          try {
+            po.observe({ type: "layout-shift", buffered: true });
+          } catch (e) {
+            console.warn("layout-shift 관찰 불가:", e);
+          }
+        }
+      })();
+
+      // 2) 광고 content 내용 교체
+      setTimeout(() => {
+        adContent.textContent = "광고 영역 – 예약된 자리 안에서 내용 교체";
+        adContent.classList.add("ready");
+      }, 1500);
+
+      // hero 이미지 삽입
+      setTimeout(() => {
+        hero.onload = () => {
+          clearTimeout(failSafeTimer);
+          showImage();
+        };
+        hero.onerror = handleImageError;
+        hero.src = IMG_PRIMARY;
+      }, 600);
+
+      // banner 버튼 부드럽게 움직이게 하기
+      setTimeout(() => {
+        console.log("test!");
+        banner.classList.add("move");
+      }, 1400);
+
+      // 3) 2000ms: 배너 left 이동 → 레이아웃 재계산
+      // setTimeout(() => {
+      //   document.getElementById("banner").classList.add("move");
+      // }, 2000);
+
+      // 5) 2600ms: 카드 위에 공지 삽입 → 또 밀림
+      // setTimeout(() => {
+      //   const notice = document.createElement("div");
+      //   notice.className = "card";
+      //   notice.textContent = "공지: 나중에 도착하여 본문을 밀어냅니다.";
+      //   const card1 = document.getElementById("card1");
+      //   card1.parentNode.insertBefore(notice, card1);
+      // }, 2600);
+    </script>
+  </body>
+</html>
