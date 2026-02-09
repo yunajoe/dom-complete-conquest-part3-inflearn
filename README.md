@@ -36,3 +36,98 @@
 - LCP(히어로 이미지 늦게 뜸), CLS(이미지 크기 미지정), INP(버튼 클릭 반응 지연), 네트워크 낭비(썸네일 전부 즉시 다운로드) 를 직접 재현 -> 최적화하는 경험을 제공
 - DevTools의 세가지 패널(network, performance, elements) 을 연동하여 '느리다/밀린다/끊긴다' 를 근거 있는 수치로 설명할 수 있게 한다.
 - 상호작용 다양화(복사/공유/지도/캘린더/토글/모달) 상황에서도 즉시성 UX를 지켜내는 훈련
+
+## 작업 내용
+
+1. 폰트 최적화
+
+- display=swap 적용
+
+```Html
+  <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap"
+      rel="stylesheet"
+   />
+```
+
+2. 이미지 최적화
+
+- width, height적용
+
+```css
+.thumbs img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 2/1;
+  border-radius: 8px;
+}
+```
+
+- content-visibility 속성 적용
+
+```Html
+<section class="receipt" id="receipt" data-lazy>
+</section>
+```
+
+```css
+[data-lazy] {
+  content-visibility: auto;
+  contain-intrinsic-size: 800px 600px;
+}
+```
+
+3. 이미지 즉시 불러오지 않기
+
+- loading="lazy" 과 decoding="async" 적용하기
+
+```Html
+   <img
+    loading="lazy"
+    decoding="async"
+    src="https://picsum.photos/800/400?random=21"
+    alt="객실1"
+   />
+```
+
+- srcset적용하기
+
+```Html
+   <img
+    src="https://picsum.photos/800/400?random=21"
+    alt="객실1"
+    srcset="
+      https://picsum.photos/400/200?random=21 400w
+      https://picsum.photos/800/400?random=21 800w
+    "
+    sizes="(max-width:700px) 100vw, 400px"
+    width="400"
+    height="200"
+   />
+```
+
+4. 모달에 속성 넣기(role, aria-modal, aria-labelledby)
+
+```Html
+ <div
+    class="modal"
+    id="modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-title"
+ >
+
+```
+
+5. 인쇄 최적화 설정
+
+```html
+<div
+  class="modal"
+  id="modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+></div>
+```
