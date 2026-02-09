@@ -4,9 +4,13 @@
     <meta charset="UTF-8" />
     <title>예약 확인 & 영수증 (느린 버전)</title>
     <!-- 폰트: 글씨가 로딩될 때까지 보이지 않음(FOIT) -->
+    <!--  FIX: display="swap" 을 사용함으로써 기본폰트를 사용후, 폰트가 로딩이 된 후 바꾼다. -->
+    <!--  FIX: preconnect 를 사용함으로 폰트를 미리 불러온다. -->
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=block"
       rel="stylesheet"
+      display="swap"
+      rel="preconnect"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
@@ -39,6 +43,7 @@
       }
       .hero {
         display: flex;
+        flex-direction: row;
         gap: 16px;
         background: var(--panel);
         border: 1px solid var(--border);
@@ -46,8 +51,12 @@
         padding: 16px;
         margin-bottom: 16px;
       }
+      /* FIX: width, height를 지정 */
       .hero img {
-        max-width: 100%;
+        width: 600px;
+        height: auto;
+        align-self: center;
+        border-radius: 12px;
       } /* 크기/비율 없음 → CLS */
       .info {
         flex: 1;
@@ -56,11 +65,11 @@
         color: var(--muted);
         margin-top: 4px;
       }
+      /* grid */
       .actions {
         display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-top: 12px;
+        flex-direction: column;
+        row-gap: 8px;
       }
       .btn {
         padding: 10px 14px;
@@ -70,11 +79,11 @@
         color: #fff;
         cursor: pointer;
       }
-      .btn.outline {
-        background: #fff;
-        color: var(--ink);
-        border: 1px solid var(--border);
+
+      #btn-calendar {
+        width: 100px;
       }
+      /* 요금 내역 */
       .receipt {
         background: var(--panel);
         border: 1px solid var(--border);
@@ -94,9 +103,12 @@
         gap: 12px;
         margin-top: 16px;
       }
+      /* FIX: width, heigh를 지정 */
       .thumbs img {
         display: block;
         width: 100%;
+        height: auto;
+        aspect-ratio: 2/1;
       } /* lazy/decoding 없음 → 모두 즉시 다운로드 */
       /* 모달 */
       .modal {
@@ -115,6 +127,15 @@
         width: 560px;
       }
       /* 인쇄: 별도 처리 없음 → 컬러/불필요 UI 그대로 출력 */
+      @media print {
+        header,
+        .actions,
+        .thumbs,
+        .modal,
+        button {
+          display: none !important;
+        }
+      }
     </style>
 
     <!-- 초기 로딩 차단: 의미 없는 블로킹 연산 -->
@@ -128,7 +149,12 @@
     <main>
       <section class="hero">
         <!-- LCP 후보: 크기/비율/우선순위 힌트 없음 -->
-        <img src="https://picsum.photos/1200/600?random=11" alt="호텔 외관" />
+        <img
+          src="https://picsum.photos/1200/600?random=11"
+          alt="호텔 외관"
+          rel="preload"
+          fetchpriority="high"
+        />
         <div class="info">
           <h1>리버사이드 호텔</h1>
           <p class="muted">
@@ -136,13 +162,17 @@
             <code id="code">RSV-8421</code>
           </p>
           <div class="actions">
-            <button class="btn" id="btn-print">인쇄 / PDF 저장</button>
-            <button class="btn outline" id="btn-invoice">
-              세부 영수증 보기
-            </button>
-            <button class="btn outline" id="btn-copy">예약번호 복사</button>
-            <button class="btn outline" id="btn-share">공유</button>
-            <button class="btn outline" id="btn-map">지도 보기</button>
+            <div>
+              <button class="btn" id="btn-print">인쇄 / PDF 저장</button>
+              <button class="btn outline" id="btn-invoice">
+                세부 영수증 보기
+              </button>
+            </div>
+            <div>
+              <button class="btn outline" id="btn-copy">예약번호 복사</button>
+              <button class="btn outline" id="btn-share">공유</button>
+              <button class="btn outline" id="btn-map">지도 보기</button>
+            </div>
             <button class="btn outline" id="btn-calendar">캘린더 추가</button>
           </div>
         </div>
@@ -174,10 +204,23 @@
 
       <section class="thumbs">
         <!-- 썸네일: 전부 즉시 네트워크 요청 + 크기 미지정 -->
+        <!-- FIX: loading:lazy 첫 화면 밖 이미지는 안 불러서 초기 로딩 가볍게  -->
+        <!-- FIX: decoding: async 이미지를 화면에 그리는 메인 스레드와 분리되어 백그라운드에서 디코딩-->
+        <!-- FIX: srcset를 사용하여 반응형 이미지 사이즈를 구현   -->
         <img src="https://picsum.photos/800/400?random=21" alt="객실1" />
         <img src="https://picsum.photos/800/400?random=22" alt="객실2" />
         <img src="https://picsum.photos/800/400?random=23" alt="객실3" />
-        <img src="https://picsum.photos/800/400?random=24" alt="객실4" />
+        <img
+          src="https://picsum.photos/800/400?random=24"
+          alt="객실4"
+          loading="lazy"
+          decoding="async"
+          srcset="
+            https://picsum.photos/800/400?random=24 480w
+            https://picsum.photos/800/400?random=24 700w
+            https://picsum.photos/800/400?random=24 1000w
+          "
+        />
       </section>
     </main>
 
